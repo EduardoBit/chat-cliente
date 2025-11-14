@@ -1,0 +1,748 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #1c1e21;
+}
+
+/* --- Contenedor Principal de la App --- */
+.App {
+  display: flex;
+  flex-direction: row; 
+  height: 100vh;
+  width: 100vw;
+  margin: 0 auto; 
+  background-color: #ffffff;
+  overflow: hidden; 
+}
+
+/* --- Estilos del Formulario de Login --- */
+.login-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Ocupa toda la altura */
+  background-color: #f0f2f5; /* Un fondo gris claro suave */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 2. La "Tarjeta" del formulario */
+.login-form form {
+  background-color: #ffffff;
+  padding: 2.5rem 2rem; /* Más espaciado interno */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px; /* Ancho máximo del formulario */
+  box-sizing: border-box; /* Asegura que el padding no desborde */
+}
+
+.login-form h2 {
+  text-align: center;
+  color: #1c1e21;
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+/* 3. Estilos de los Inputs */
+.login-form input {
+  font-size: 1.1rem;
+  width: 100%;
+  padding: 14px 16px; /* Campos más altos */
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form input:focus {
+  border-color: #007bff; /* Resaltado azul al hacer foco */
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+  outline: none;
+}
+
+/* 4. Estilo del Botón Principal */
+.login-form button[type="submit"] {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-form button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* 5. Estilo del Botón Secundario (para cambiar de modo) */
+.btn-toggle-auth {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 10px;
+  margin-top: 1rem;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.btn-toggle-auth:hover {
+  text-decoration: underline;
+}
+
+/* 6. Estilo del Mensaje de Error */
+.auth-error {
+  color: #d8000c;
+  background-color: #ffbaba;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+/* --- Cabecera del Chat --- */
+header {
+  flex-shrink: 0;
+  background-color: #007bff;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* --- Contenedor de la Lista de Mensajes --- */
+.lista-mensajes {
+  flex-grow: 1; /* Hace que ocupe todo el espacio disponible */
+  overflow-y: auto; 
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Apila los mensajes verticalmente */
+  gap: 10px; /* Espacio entre burbujas de chat */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.settings-menu {
+  position: absolute;
+  top: 15px;
+  right: 15px; /* Mantiene el icono de 3 puntos a la derecha */
+  z-index: 100; /* Asegura que esté por encima de otros elementos */
+}
+
+.btn-settings {
+  background: none;
+  border: none;
+  color: white; /* Blanco para que contraste con el fondo azul del header */
+  font-size: 1.8rem; /* Un poco más grande */
+  cursor: pointer;
+  padding: 0 10px;
+  margin-left: auto; /* Empuja el botón a la derecha */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 1rem;
+  width: 200px; /* Ancho fijo para que no se extienda demasiado */
+  z-index: 100;
+  transform: translateY(10px); /* Pequeño desplazamiento hacia abajo para no chocar con el botón */
+  opacity: 0;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  pointer-events: none; /* Permite que el hover funcione mejor */
+}
+
+.settings-menu:hover .settings-dropdown,
+.settings-menu:focus-within .settings-dropdown { /* focus-within para accesibilidad con teclado */
+  display: block; /* Vuelve a block para que el layout se calcule */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.settings-dropdown p {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.wallpaper-options {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los botones salten a la siguiente línea si no hay espacio */
+  gap: 10px;
+  margin-top: 10px; /* Pequeño espacio con el título "Cambiar Fondo" */
+  justify-content: flex-start; /* Alinea los ítems al principio */
+}
+
+.wp-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.1);;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  background-size: cover; /* ¡Asegura que la imagen de la miniatura cubra el botón! */
+  background-position: center; /* Centra la imagen en la miniatura */
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+/* --- Estilo Base para TODAS las burbujas --- */
+.mensaje {
+  padding: 10px 15px;
+  border-radius: 18px;
+  max-width: 70%; /* Evita que un mensaje ocupe toda la pantalla */
+  word-wrap: break-word; /* Rompe palabras largas */
+  line-height: 1.4;
+}
+
+.mensaje-fila {
+  display: flex;
+  align-items: flex-end; /* Alinea avatar y burbuja abajo */
+  gap: 10px; /* Espacio entre avatar y burbuja */
+  max-width: 85%; /* Las filas no deben ocupar todo el ancho */
+}
+
+/* La burbuja del mensaje */
+.mensaje-burbuja {
+  min-width: 100px; 
+  padding: 10px 15px;
+  border-radius: 18px;
+  word-wrap: break-word;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column; 
+}
+
+.mensaje-burbuja .mensaje-texto {
+  display: block; 
+  white-space: pre-wrap;
+}
+
+.mensaje-burbuja strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.mensaje-burbuja span {
+  display: block;
+  white-space: pre-wrap;
+  padding-right: 5px; 
+}
+
+.timestamp {
+  font-size: 0.75rem; 
+  align-self: flex-end; /* Se alinea él solo a la derecha */
+  margin-top: 4px; /* Un pequeño espacio entre el texto y la hora */
+}
+
+.mensaje-fila.otro {
+  align-self: flex-start; 
+}
+
+.mensaje-fila.otro .mensaje-burbuja {
+  background-color: #e4e6eb;
+  color: #050505;
+  border-bottom-left-radius: 4px; 
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.mensaje-fila.otro .mensaje-burbuja strong {
+  color: #007bff; /* Color del nombre de usuario */
+}
+
+
+/* --- Configuración para MIO (Derecha) --- */
+.mensaje-fila.mio .timestamp {
+  color: #e0e0e0; /* Gris claro para leerse sobre el azul */
+}
+
+.mensaje-fila.otro .timestamp {
+  color: #65676b; /* Gris oscuro para leerse sobre el gris claro */
+}
+
+.mensaje-fila.mio {
+  align-self: flex-end; /* Se alinea a la derecha */
+  flex-direction: row-reverse; /* ¡CLAVE! Invierte el orden: Burbuja primero, Avatar después */
+}
+
+.mensaje-fila.mio .mensaje-burbuja {
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
+  /* La burbuja se redondea diferente en el lado del avatar */
+  border-bottom-right-radius: 4px; 
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* --- Formulario de envío de Mensaje --- */
+.formulario-chat {
+  position: relative; 
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f0f2f5;
+  border-top: 1px solid #ddd;
+}
+
+.formulario-chat input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 1rem;
+  outline: none;
+  background-color: #fff;
+  color: #1c1e21;
+}
+
+
+/* Botón de Emoji */
+.btn-emoji-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 5px;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.btn-emoji-toggle:hover {
+  color: #007bff;
+}
+
+/* Contenedor del Emoji Picker */
+.emoji-picker-contenedor {
+  position: absolute;
+  bottom: calc(100% + 10px); /* Posicionar encima del formulario */
+  left: 10px;
+  z-index: 1000; /* Asegurar que esté por encima de otros elementos */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden; /* Para que el shadow se vea bien */
+}
+
+/* Ajustes específicos de la librería para que encaje mejor */
+.EmojiPickerReact.ep-emoji-picker {
+  --epr-bg-color: #f8f8f8;
+  --epr-text-color: #333;
+  --epr-search-bg-color: #fff;
+  --epr-hover-bg-color: #e6e6e6;
+  --epr-category-icon-color: #777;
+  --epr-category-icon-active-color: #007bff;
+  --epr-focus-bg-color: #dbeaff; /* Color de fondo al hacer foco */
+  width: 320px; /* Ancho fijo para el picker */
+  box-shadow: none; /* Ya lo pusimos en el contenedor */
+}
+
+
+.formulario-chat button[type="submit"] {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: bold;
+}
+
+.formulario-chat button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+
+.formulario-chat input::placeholder {
+  color: #999; /* Un color gris estándar */
+  opacity: 1; /* Asegura que no sea transparente */
+}
+
+.formulario-chat input::-webkit-input-placeholder { /* Para Chrome, Safari, Opera */
+  color: #999;
+  opacity: 1;
+}
+
+.formulario-chat input:-ms-input-placeholder { /* Para Internet Explorer 10-11 */
+  color: #999;
+  opacity: 1;
+}
+
+.formulario-chat input::-moz-placeholder { /* Para Firefox */
+  color: #999;
+  opacity: 1;
+}
+
+/* --- Indicador de "Escribiendo..." --- */
+.typing-indicator {
+  flex-shrink: 0;
+  height: 25px;
+  font-style: italic;
+  color: #888;
+  padding: 0 20px 5px; /* Alineado con los inputs */
+}
+
+.avatar-contenedor {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden; /* Para que la imagen se recorte circular */
+  background-color: #eee; /* Color de fondo mientras carga */
+  flex-shrink: 0; /* Evita que el avatar se encoja */
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Barra Lateral --- */
+.sidebar-usuarios {
+  width: 240px;
+  flex-shrink: 0; /* Evita que se encoja */
+  background-color: #f7f7f7;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-usuarios h3 {
+  padding: 15px;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+  background-color: #eee;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.sidebar-usuarios ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto; /* Scroll para la lista */
+  flex-grow: 1;
+}
+
+.sidebar-usuarios li {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  gap: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-usuarios li .avatar-contenedor {
+  width: 30px; /* Avatar más pequeño */
+  height: 30px;
+}
+
+/* ---Área de Chat --- */
+.chat-area {
+  flex-grow: 1; /* Ocupa el resto del espacio */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Clave para que el scroll interno funcione */
+  height: 100vh;
+}
+
+.notificaciones-area {
+  padding: 0 10px;
+  max-height: 100px; /* Límite para que no crezca mucho */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.notificacion {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #777;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 5px 0;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lobby-container {
+  width: 100vw;
+  height: 100vh;
+  max-width: 700px; /* Un poco más ancho para el lobby */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden; /* Evita que el scroll se salga */
+}
+
+.lobby-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.lobby-header h2 {
+  margin: 0;
+  color: #111;
+  font-size: 1.8rem;
+}
+.lobby-header p {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.crear-sala-form {
+  display: flex;
+  padding: 1rem 1.5rem;
+  gap: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.crear-sala-form input {
+  flex-grow: 1;
+  font-size: 1rem;
+  padding: 12px 18px;
+  border: 1px solid #ddd;
+  border-radius: 20px; /* Más redondeado */
+  background-color: #f7f7f7;
+  outline: none;
+  color:black
+}
+
+.crear-sala-form input:focus {
+  border-color: #007bff;
+  background-color: #fff;
+}
+
+.crear-sala-form button {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0 1.2rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.crear-sala-form button:hover {
+  background-color: #0056b3;
+}
+
+.lobby-listas {
+  flex-grow: 1; /* Ocupa el resto del espacio */
+  overflow-y: auto; /* Permite scroll solo en las listas */
+  padding: 0;
+}
+
+.lista-seccion h3 {
+  padding: 0.75rem 1.5rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #007bff;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #eee;
+}
+
+.lista-salas {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sala-item, .sala-item-empty {
+display: flex;
+  align-items: center;
+  gap: 15px; /* Espacio entre avatar y texto */
+  padding: 14px 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sala-item-empty {
+  justify-content: center;
+  color: #888;
+}
+
+.sala-item:hover {
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sala-item .avatar-contenedor {
+  width: 48px;
+  height: 48px;
+  font-size: 1.2rem; /* Letras más grandes en el avatar */
+}
+
+.sala-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sala-nombre {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #111;
+}
+
+.sala-item-empty {
+  padding: 1rem 1.5rem;
+  color: #888;
+  text-align: center;
+}
+
+.sala-usuarios {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.sala-item button {
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sala-item button:hover {
+  background-color: #0056b3;
+}
+
+/* --- AÑADE ESTO: Botón de Salir del Chat --- */
+.btn-salir {
+  position: absolute;
+  top: 22px;
+  left: 10px;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: #0b0edb;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.btn-salir:hover {
+  opacity: 1;
+}
+header h3 {
+  margin-left: 120px; /* Hacemos espacio para el botón de salir */
+}
+
+.auth-error {
+  color: #d8000c; /* Rojo de error */
+  background-color: #ffbaba;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.btn-toggle-auth {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+}
+.btn-toggle-auth:hover {
+  text-decoration: underline;
+}
+
+.btn-logout {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: right;
+}
+.btn-logout:hover {
+  background: #c82333;
+}
+
+.btn-attach {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 5px;
+  color: #888;
+  transition: color 0.2s;
+}
+.btn-attach:hover {
+  color: #007bff;
+}
+.btn-attach:disabled {
+  opacity: 0.5;
+}
+
+.chat-imagen {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 8px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+.wp-option:hover {
+  transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
+  border-color: #007bff; /* Borde de color al pasar el ratón */
+}
+
+.wp-option.wp-upload-btn {
+  background-color: #f0f2f5; /* Fondo claro */
+  color: #555; /* Color de texto gris */
+  font-size: 2rem;
+  font-weight: 300;
+  display: flex; /* Usar flexbox para centrar el "+" */
+  align-items: center; /* Centrar verticalmente */
+  justify-content: center; /* Centrar horizontalmente */
+  border-style: dashed; /* Borde punteado para indicar que es para subir */
+  border-color: #ccc; /* Color del borde punteado */
+  border-width: 2px;
+}
+
+.wp-option.wp-upload-btn:hover {
+  background-color: #e6e6e6;
+  color: #007bff; /* Azul al pasar el ratón */
+  border-color: #007bff;
+  transform: scale(1.05);
+}

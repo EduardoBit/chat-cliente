@@ -41,7 +41,7 @@ interface Notificacion {
   texto: string;
 }
 
-const API_URL = 'http://localhost:4000';
+const API_URL = '';
 
 function App() {
 

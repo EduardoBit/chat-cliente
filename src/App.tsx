@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent, useRef } from 'react';
+import { useState, useEffect, type FormEvent, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
 import Avatar from './Avatar';

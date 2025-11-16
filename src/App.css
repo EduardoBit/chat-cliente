@@ -1,9 +1,8 @@
 html, body {
-  height: 100dvh;
+  height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   touch-action: manipulation;
 }
 
@@ -18,11 +17,12 @@ body {
 .App {
   display: flex;
   flex-direction: column; /* Apilado verticalmente por defecto */
-  height: 100dvh; /* Para PCs y navegadores que lo soportan bien */
+  height: 100%; /* Para PCs y navegadores que lo soportan bien */
   height: -webkit-fill-available;
   width: 100%;
-  margin: 0 auto; 
+  margin: 0; 
   background-color: #ffffff;
+  overflow: hidden;
 }
 
 /* --- Estilos del Formulario de Login --- */
@@ -494,7 +494,6 @@ header {
 
 /* ---Área de Chat --- */
 .chat-area {
-  height: 100dvh;
   flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
   flex-direction: column;

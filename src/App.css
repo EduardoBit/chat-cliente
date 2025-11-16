@@ -121,7 +121,7 @@ body {
 /* --- Cabecera del Chat --- */
 header {
   flex-shrink: 0;
-  background-color: #1F272A;
+  background-color: #134D37;
   color: white;
   padding: 10px 16px;
   display: flex; 
@@ -358,7 +358,7 @@ header {
 }
 
 .btn-emoji-toggle:hover {
-  color: #007bff;
+  color: #134D37;
 }
 
 /* Contenedor del Emoji Picker */
@@ -379,7 +379,7 @@ header {
   --epr-search-bg-color: #fff;
   --epr-hover-bg-color: #e6e6e6;
   --epr-category-icon-color: #777;
-  --epr-category-icon-active-color: #007bff;
+  --epr-category-icon-active-color: #134D37;
   --epr-focus-bg-color: #dbeaff; /* Color de fondo al hacer foco */
   width: 320px; /* Ancho fijo para el picker */
   box-shadow: none; /* Ya lo pusimos en el contenedor */
@@ -586,7 +586,7 @@ header {
 }
 
 .crear-sala-form input:focus {
-  border-color: #007bff;
+  border-color: #134D37;
   background-color: #fff;
 }
 
@@ -594,7 +594,7 @@ header {
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0 1.2rem;
-  background-color: #007bff;
+  background-color: #134D37;
   color: white;
   border: none;
   border-radius: 20px;
@@ -602,7 +602,7 @@ header {
   transition: background-color 0.2s;
 }
 .crear-sala-form button:hover {
-  background-color: #0056b3;
+  background-color: #134D37;
 }
 
 .lobby-listas {
@@ -616,8 +616,8 @@ header {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #007bff;
-  background-color: #f9f9f9;
+  color: #ffffff;
+  background-color: #134D37;
   border-bottom: 1px solid #eee;
 }
 
@@ -679,7 +679,7 @@ display: flex;
 .sala-item button {
   font-size: 0.9rem;
   padding: 8px 12px;
-  background-color: #007bff;
+  background-color: #1EC263;
   color: white;
   border: none;
   border-radius: 6px;
@@ -687,7 +687,7 @@ display: flex;
 }
 
 .sala-item button:hover {
-  background-color: #0056b3;
+  background-color: #134D37;
 }
 
 /* --- AÑADE ESTO: Botón de Salir del Chat --- */
@@ -696,7 +696,7 @@ display: flex;
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #1EC263;
+  color: #ffffff;
   padding: 0;
   cursor: pointer;
   opacity: 0.8;
@@ -722,7 +722,7 @@ header h3 {
 .btn-toggle-auth {
   background: none;
   border: none;
-  color: #007bff;
+  color: #1EC263;
   cursor: pointer;
   padding: 10px;
   margin-top: 10px;
@@ -755,7 +755,7 @@ header h3 {
   transition: color 0.2s;
 }
 .btn-attach:hover {
-  color: #007bff;
+  color: #1EC263;
 }
 .btn-attach:disabled {
   opacity: 0.5;
@@ -789,8 +789,8 @@ header h3 {
 
 .wp-option.wp-upload-btn:hover {
   background-color: #e6e6e6;
-  color: #007bff; /* Azul al pasar el ratón */
-  border-color: #007bff;
+  color: #1EC263; /* Azul al pasar el ratón */
+  border-color: #1EC263;
   transform: scale(1.05);
 }
 

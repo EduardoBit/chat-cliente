@@ -58,7 +58,7 @@ body {
 }
 
 .login-form input:focus {
-  border-color: #007bff; /* Resaltado azul al hacer foco */
+  border-color: #134D37; /* Resaltado azul al hacer foco */
   box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
   outline: none;
 }
@@ -70,7 +70,7 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
-  background-color: #007bff;
+  background-color: #134D37;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -78,7 +78,7 @@ body {
 }
 
 .login-form button[type="submit"]:hover {
-  background-color: #0056b3;
+  background-color: #091704;
 }
 
 /* 5. Estilo del Botón Secundario (para cambiar de modo) */
@@ -111,7 +111,7 @@ body {
 /* --- Cabecera del Chat --- */
 header {
   flex-shrink: 0;
-  background-color: #007bff;
+  background-color: #091704;
   color: white;
   padding: 15px 20px;
   text-align: center;
@@ -261,9 +261,9 @@ header {
 }
 
 .mensaje-fila.otro .mensaje-burbuja {
-  background-color: #e4e6eb;
+  background-color: #091704;
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-  color: #050505;
+  color: #ffffff;
   border-bottom-left-radius: 4px; 
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
 }
@@ -288,7 +288,7 @@ header {
 }
 
 .mensaje-fila.mio .mensaje-burbuja {
-  background-color: #dcf8c6;
+  background-color: #134D37;
   color: rgb(255, 255, 255);
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   /* La burbuja se redondea diferente en el lado del avatar */

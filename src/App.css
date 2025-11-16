@@ -19,6 +19,7 @@ body {
   flex-direction: column; /* Apilado verticalmente por defecto */
   height: 100%; /* Para PCs y navegadores que lo soportan bien */
   width: 100%;
+  height: -webkit-fill-available;
   margin: 0; 
   background-color: #ffffff;
   overflow: hidden;

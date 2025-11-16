@@ -797,6 +797,24 @@ header h3 {
   transform: scale(1.05);
 }
 
+.ticks {
+  font-size: 0.75rem;
+  font-weight: bold;
+  align-self: flex-end; /* Lo alinea a la derecha */
+  margin-right: 5px;   /* Espacio entre el tick y la hora */
+  margin-top: -4px;    /* Lo sube un poco */
+}
+
+/* Un solo tick gris (enviado) */
+.ticks-enviado {
+  color: #8696a0; /* Gris de WhatsApp */
+}
+
+/* Doble tick azul (leído) */
+.ticks-leido {
+  color: #53bdeb; /* Azul de WhatsApp */
+}
+
 @media (min-width: 768px) {
 
 }

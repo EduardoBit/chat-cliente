@@ -19,10 +19,12 @@ const formatTimestamp = (timestamp?: string): string => {
 };
 
 interface MessagePayload {
+  id: number;
   usuario: string;
   texto?: string | null;
   imagen_url?: string | null; 
   timestamp?: string; 
+  estado: string;
 }
 
 interface SalaDbEntry {
@@ -127,6 +129,10 @@ function App() {
 
     socket.on('receiveMessage', (nuevoPayload: MessagePayload) => {
       setMensajes(prevMensajes => [...prevMensajes, nuevoPayload]);
+      // Si el mensaje no es mío, lo marco como leído al instante
+      if (nuevoPayload.usuario !== authUser?.username) {
+        marcarMensajesComoLeidos([nuevoPayload]); 
+      }
     });
 
     socket.on('alguienEscribe', (usuario: string) => {
@@ -144,6 +150,15 @@ function App() {
         setNotificaciones(prev => prev.filter(n => n.id !== nuevaNoti.id));
       }, 5000);
     });
+    socket.on('actualizarEstados', (payload: { messageIds: number[], nuevoEstado: string }) => {
+      setMensajes(prevMensajes => 
+        prevMensajes.map(msg => 
+          payload.messageIds.includes(msg.id) 
+            ? { ...msg, estado: payload.nuevoEstado } // Actualiza el estado del mensaje
+            : msg
+        )
+      );
+    });
 
     // Limpieza
     return () => {
@@ -151,6 +166,7 @@ function App() {
       socket.off('alguienEscribe');
       socket.off('actualizarListaUsuarios');
       socket.off('notificacion');
+      socket.off('actualizarEstados');
     };
   }, [socket, authUser]);
 
@@ -203,9 +219,29 @@ function App() {
       setSalaActual(salaInfo);
       socket.emit('solicitarHistorial', salaInfo.id, (historial: MessagePayload[]) => {
         setMensajes(historial);
+        marcarMensajesComoLeidos(historial);
       });
     });
   };
+
+  // Función para enviar los IDs de mensajes leídos al servidor
+const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[]) => {
+  if (!socket || !authUser) return;
+
+  const idsDeMensajesNoLeidos = mensajesRecibidos
+    .filter(msg => 
+      msg.usuario !== authUser.username && // Que no sean míos
+      msg.estado !== 'leido'                // Y que no estén ya leídos
+    )
+    .map(msg => msg.id); // Saca solo los IDs
+
+  if (idsDeMensajesNoLeidos.length > 0) {
+    socket.emit('marcarComoLeido', { 
+      salaId: salaActual?.id, 
+      messageIds: idsDeMensajesNoLeidos 
+    });
+  }
+};
 
   const handleIniciarChatPrivado = (otroUsuarioId: number) => {
   if (!socket) return;
@@ -490,6 +526,11 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                     <img src={msg.imagen_url} alt="Imagen adjunta" className="chat-imagen" />
                   ) : (
                     <span className="mensaje-texto">{msg.texto}</span>
+                  )}
+                  {msg.usuario === authUser!.username && (
+                    <span className={`ticks ticks-${msg.estado}`}>
+                      {msg.estado === 'leido' ? '✓✓' : '✓'}
+                    </span>
                   )}
                   <span className="timestamp">
                     {formatTimestamp(msg.timestamp)}

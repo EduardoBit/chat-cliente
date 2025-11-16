@@ -594,7 +594,7 @@ header {
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0 1.2rem;
-  background-color: #134D37;
+  background-color: #1EC263;
   color: white;
   border: none;
   border-radius: 20px;
@@ -733,7 +733,7 @@ header h3 {
 }
 
 .btn-logout {
-  background: #dc3545;
+  background: #1EC263;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -742,7 +742,7 @@ header h3 {
   float: right;
 }
 .btn-logout:hover {
-  background: #c82333;
+  background: #134D37;
 }
 
 .btn-attach {
@@ -755,7 +755,7 @@ header h3 {
   transition: color 0.2s;
 }
 .btn-attach:hover {
-  color: #1EC263;
+  color: #134D37;
 }
 .btn-attach:disabled {
   opacity: 0.5;
@@ -771,7 +771,7 @@ header h3 {
 
 .wp-option:hover {
   transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
-  border-color: #007bff; /* Borde de color al pasar el ratón */
+  border-color: #134D37; /* Borde de color al pasar el ratón */
 }
 
 .wp-option.wp-upload-btn {

@@ -121,7 +121,7 @@ body {
 /* --- Cabecera del Chat --- */
 header {
   flex-shrink: 0;
-  background-color: #134D37;
+  background-color: #1F272A;
   color: white;
   padding: 10px 16px;
   display: flex; 
@@ -742,7 +742,7 @@ header h3 {
   float: right;
 }
 .btn-logout:hover {
-  background: #134D37;
+  background: #1F272A;
 }
 
 .btn-attach {

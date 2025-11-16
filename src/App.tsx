@@ -383,10 +383,12 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
         <main className="chat-area"> 
           <header>
             <button onClick={handleDejarSala} className="btn-salir">
-              ← Volver al Lobby
+              ←
             </button>
-            <h3>Sala: {salaActual.nombre}</h3>
-            <p>Conectado como {authUser.username}</p>
+            <Avatar username={salaActual.nombre} />
+            <div className="header-info">
+              <h3>{salaActual.nombre}</h3>
+            </div>
 
             <div className="settings-menu">
               <button className="btn-settings">⋮</button>

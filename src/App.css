@@ -497,6 +497,7 @@ header {
 .chat-area {
   flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
+  height: 100dvh;
   flex-direction: column;
   overflow: hidden;
   width: 100%; /* Ocupa el 100% del .App */

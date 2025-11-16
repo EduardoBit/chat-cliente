@@ -120,8 +120,6 @@ body {
 
 /* --- Cabecera del Chat --- */
 header {
-  position: sticky;
-  top: 0;
   flex-shrink: 0;
   background-color: #1F272A;
   color: white;
@@ -500,7 +498,6 @@ header {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: 100dvh;
   width: 100%; /* Ocupa el 100% del .App */
 }
 

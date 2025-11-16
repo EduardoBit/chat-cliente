@@ -19,6 +19,7 @@ body {
   width: 100vw;
   margin: 0 auto; 
   background-color: #ffffff;
+  overflow: hidden;
 }
 
 /* --- Estilos del Formulario de Login --- */
@@ -316,6 +317,7 @@ header > p {
   position: relative; 
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
   align-items: center;
   padding: 1rem;
   background-color: #1F272A;
@@ -491,6 +493,7 @@ header > p {
   flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   height: 100%; /* Ocupa el 100% del .App */
   width: 100%; /* Ocupa el 100% del .App */
 }

@@ -498,7 +498,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                   placeholder="Escribe tu mensaje..."
                 />
               )}
-              <button type="submit" disabled={isUploading}>Enviar</button>
+              <button type="submit" disabled={isUploading}>▶</button>
             {mostrarEmojiPicker && (
               <div className="emoji-picker-contenedor">
                 <EmojiPicker 

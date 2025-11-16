@@ -9,8 +9,8 @@ html, body, #root {
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #1F272A;
-  color: #ffffff;
+  background-color: #111b21;
+  color: #e9edef;
 }
 
 /* --- Contenedor Principal de la App --- */
@@ -545,7 +545,7 @@ header {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background-color: #2C2C2C;
+  background-color: #111b21;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden; /* Evita que el scroll se salga */
@@ -553,49 +553,51 @@ header {
 
 .lobby-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #202c33;
   position: relative;
+  background-color: #202c33;
 }
 
 .lobby-header h2 {
   margin: 0;
-  color: #ffffff;
+  color: #e9edef;
   font-size: 1.8rem;
 }
 .lobby-header p {
   margin: 5px 0 0;
-  color: #ffffff;
+  color: #8696a0;
   font-size: 1rem;
 }
 
 .crear-sala-form {
   display: flex;
-  padding: 1rem 1.5rem;
+  padding: .75rem 1.5rem;
   gap: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #202c33;
+  background-color: #111b21;
 }
 
 .crear-sala-form input {
   flex-grow: 1;
   font-size: 1rem;
-  padding: 12px 18px;
-  border: 1px solid #ddd;
+  padding: 10px 18px;
+  border: none;
   border-radius: 20px; /* Más redondeado */
-  background-color: #1F272A;
+  background-color: #202c33;
   outline: none;
-  color:black
+  color:#e9edef;
 }
 
 .crear-sala-form input:focus {
-  border-color: #134D37;
-  background-color: #1F272A;
+  border-color: #00a884;
+  background-color: #202c33;
 }
 
 .crear-sala-form button {
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0 1.2rem;
-  background-color: #1EC263;
+  background-color: #00a884;
   color: white;
   border: none;
   border-radius: 20px;
@@ -603,7 +605,7 @@ header {
   transition: background-color 0.2s;
 }
 .crear-sala-form button:hover {
-  background-color: #134D37;
+  background-color: #008669;
 }
 
 .lobby-listas {
@@ -617,9 +619,9 @@ header {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #ffffff;
-  background-color: #2C2C2C;
-  border-bottom: 1px solid #eee;
+  color: #00a884;
+  background-color: #111b21;
+  border-bottom: 1px solid #202c33;
 }
 
 .lista-salas {
@@ -633,7 +635,7 @@ display: flex;
   align-items: center;
   gap: 15px; /* Espacio entre avatar y texto */
   padding: 14px 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #202c33;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -644,8 +646,8 @@ display: flex;
 }
 
 .sala-item:hover {
-  background-color: #383838;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #202c33;
+  box-shadow: none;
 }
 
 .sala-item .avatar-contenedor {
@@ -663,7 +665,7 @@ display: flex;
 .sala-nombre {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #ffffff;
+  color: #e9edef;
 }
 
 .sala-item-empty {
@@ -674,13 +676,13 @@ display: flex;
 
 .sala-usuarios {
   font-size: 0.9rem;
-  color: #ffffff;
+  color: #8696a0;
 }
 
 .sala-item button {
   font-size: 0.9rem;
   padding: 8px 12px;
-  background-color: #1EC263;
+  background-color: #00a884;
   color: white;
   border: none;
   border-radius: 6px;
@@ -688,7 +690,7 @@ display: flex;
 }
 
 .sala-item button:hover {
-  background-color: #134D37;
+  background-color: #008669;
 }
 
 /* --- AÑADE ESTO: Botón de Salir del Chat --- */

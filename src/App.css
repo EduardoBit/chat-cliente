@@ -463,8 +463,9 @@ header {
 .sidebar-usuarios {
   display: none; 
   width: 240px;
-  flex-shrink: 0; 
-  background-color: #f7f7f7;
+  flex-shrink: 0;
+  color:white; 
+  background-color: #1F272A;
   border-right: 1px solid #ddd;
   flex-direction: column;
   overflow: hidden;
@@ -544,7 +545,7 @@ header {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: #1F272A;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden; /* Evita que el scroll se salga */
@@ -558,12 +559,12 @@ header {
 
 .lobby-header h2 {
   margin: 0;
-  color: #111;
+  color: #ffffff;
   font-size: 1.8rem;
 }
 .lobby-header p {
   margin: 5px 0 0;
-  color: #666;
+  color: #ffffff;
   font-size: 1rem;
 }
 
@@ -580,14 +581,14 @@ header {
   padding: 12px 18px;
   border: 1px solid #ddd;
   border-radius: 20px; /* Más redondeado */
-  background-color: #f7f7f7;
+  background-color: #1F272A;
   outline: none;
   color:black
 }
 
 .crear-sala-form input:focus {
   border-color: #134D37;
-  background-color: #fff;
+  background-color: #1F272A;
 }
 
 .crear-sala-form button {
@@ -617,7 +618,7 @@ header {
   font-size: 0.9rem;
   font-weight: 600;
   color: #ffffff;
-  background-color: #134D37;
+  background-color: #2C2C2C;
   border-bottom: 1px solid #eee;
 }
 
@@ -643,7 +644,7 @@ display: flex;
 }
 
 .sala-item:hover {
-  background-color: #f9f9f9;
+  background-color: #383838;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -662,18 +663,18 @@ display: flex;
 .sala-nombre {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #111;
+  color: #ffffff;
 }
 
 .sala-item-empty {
   padding: 1rem 1.5rem;
-  color: #888;
+  color: #ffffff;
   text-align: center;
 }
 
 .sala-usuarios {
   font-size: 0.9rem;
-  color: #777;
+  color: #ffffff;
 }
 
 .sala-item button {

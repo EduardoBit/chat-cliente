@@ -64,6 +64,8 @@ function App() {
   const [typingDisplay, setTypingDisplay] = useState('');
   const [usuariosConectados, setUsuariosConectados] = useState<string[]>([]);
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]); // (Esta la arreglaremos luego)
+  interface UserEntry { id: number; username: string; }
+  const [usuariosGlobales, setUsuariosGlobales] = useState<UserEntry[]>([]);
 
   // Refs 
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -93,6 +95,10 @@ function App() {
   
       newSocket.emit('solicitarSalasPublicas', (salas: SalaDbEntry[]) => {
         setSalasPublicas(salas);
+      });
+
+      newSocket.emit('solicitarListaUsuarios', (usuarios: UserEntry[]) => {
+    setUsuariosGlobales(usuarios);
       });
     });
 
@@ -199,9 +205,24 @@ function App() {
         setMensajes(historial);
       });
     });
-
-
   };
+
+  const handleIniciarChatPrivado = (otroUsuarioId: number) => {
+  if (!socket) return;
+  setMensajes([]);
+  setNotificaciones([]);
+
+  // Usamos el nuevo evento del backend
+  socket.emit('solicitarChatPrivado', otroUsuarioId, (salaInfo: SalaDbEntry) => {
+    // El backend nos devuelve la sala (nueva o existente) y el nombre del otro usuario
+    setSalaActual(salaInfo);
+
+    // El historial funciona igual que antes
+    socket.emit('solicitarHistorial', salaInfo.id, (historial: MessagePayload[]) => {
+      setMensajes(historial);
+    });
+  });
+};
 
   const handleCrearSala = (e: FormEvent) => {
     e.preventDefault();
@@ -357,6 +378,21 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                     <div className="sala-info"><span className="sala-nombre"># {s.nombre}</span></div>
                   </li>
                 )
+              ))}
+            </ul>
+          </div>
+
+          <div className="lista-seccion">
+            <h3>Usuarios</h3>
+            <ul className="lista-salas">
+              {usuariosGlobales.length === 0 && <li className="sala-item-empty">No hay otros usuarios conectados.</li>}
+              {usuariosGlobales.map(user => (
+                <li key={user.id} className="sala-item" onClick={() => handleIniciarChatPrivado(user.id)}>
+                  <Avatar username={user.username} />
+                  <div className="sala-info">
+                    <span className="sala-nombre">{user.username}</span>
+                  </div>
+                </li>
               ))}
             </ul>
           </div>

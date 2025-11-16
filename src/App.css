@@ -3,6 +3,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
   touch-action: manipulation;
 }
 
@@ -22,7 +23,6 @@ body {
   width: 100%;
   margin: 0 auto; 
   background-color: #ffffff;
-  overflow: hidden;
 }
 
 /* --- Estilos del Formulario de Login --- */
@@ -150,6 +150,7 @@ header {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  min-height: 0;
 }
 
 .settings-menu {
@@ -783,11 +784,4 @@ header h3 {
 
 @media (min-width: 768px) {
 
-  .App {
-    flex-direction: row;
-  }
-
-  .chat-area {
-    width: auto;
-  }
 }

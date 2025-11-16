@@ -495,6 +495,7 @@ header {
 
 /* ---Área de Chat --- */
 .chat-area {
+  height: 100%;
   flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
   flex-direction: column;

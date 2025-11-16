@@ -1,4 +1,4 @@
-html, body {
+html, body, #root {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -152,6 +152,8 @@ header {
   background-position: center;
   background-repeat: no-repeat;
   min-height: 0;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
 }
 
 .settings-menu {
@@ -320,7 +322,8 @@ header {
 .formulario-chat {
   position: relative; 
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  margin: 0;
   flex-shrink: 0;
   align-items: center;
   padding: 10px;
@@ -498,6 +501,9 @@ header {
   flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
   height: 100dvh;
+  min-height: 100dvh;
+  padding-bottom: 0;
+  margin-bottom: 0;
   flex-direction: column;
   overflow: hidden;
   width: 100%; /* Ocupa el 100% del .App */

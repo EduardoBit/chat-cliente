@@ -500,6 +500,7 @@ header {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100dvh;
   width: 100%; /* Ocupa el 100% del .App */
 }
 

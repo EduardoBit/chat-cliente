@@ -8,7 +8,7 @@ body {
 /* --- Contenedor Principal de la App --- */
 .App {
   display: flex;
-  flex-direction: row; 
+  flex-direction: column; /* Apilado verticalmente por defecto */
   height: 100vh;
   width: 100vw;
   margin: 0 auto; 
@@ -262,6 +262,7 @@ header {
 
 .mensaje-fila.otro .mensaje-burbuja {
   background-color: #e4e6eb;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   color: #050505;
   border-bottom-left-radius: 4px; 
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
@@ -287,8 +288,9 @@ header {
 }
 
 .mensaje-fila.mio .mensaje-burbuja {
-  background-color: #007bff;
+  background-color: #dcf8c6;
   color: rgb(255, 255, 255);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   /* La burbuja se redondea diferente en el lado del avatar */
   border-bottom-right-radius: 4px; 
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
@@ -419,8 +421,10 @@ header {
 
 /* --- Barra Lateral --- */
 .sidebar-usuarios {
+  display: none; 
+  
   width: 240px;
-  flex-shrink: 0; /* Evita que se encoja */
+  flex-shrink: 0; 
   background-color: #f7f7f7;
   border-right: 1px solid #ddd;
   display: flex;
@@ -460,11 +464,12 @@ header {
 
 /* ---Área de Chat --- */
 .chat-area {
-  flex-grow: 1; /* Ocupa el resto del espacio */
+  flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Clave para que el scroll interno funcione */
-  height: 100vh;
+  overflow: hidden;
+  height: 100%; /* Ocupa el 100% del .App */
+  width: 100%; /* Ocupa el 100% del .App */
 }
 
 .notificaciones-area {
@@ -745,4 +750,23 @@ header h3 {
   color: #007bff; /* Azul al pasar el ratón */
   border-color: #007bff;
   transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+
+  /* 1. Vuelve a poner el .App en modo "fila" (lado a lado) */
+  .App {
+    flex-direction: row;
+  }
+
+  /* 2. Vuelve a mostrar la barra lateral */
+  .sidebar-usuarios {
+    display: flex; /* La mostramos de nuevo */
+    width: 300px; /* Le damos un ancho un poco mayor en PC */
+  }
+
+  /* 3. El área de chat ya no necesita 100% de ancho */
+  .chat-area {
+    width: auto; /* Dejamos que flex-grow haga su trabajo */
+  }
 }

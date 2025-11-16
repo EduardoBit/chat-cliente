@@ -177,33 +177,6 @@ function App() {
     }
   }, [mensajes]);
 
-  useEffect(() => {
-  const adjustOnResize = () => {
-    // forzamos el scroll al final al cambiar tamaño (evita franja blanca)
-    if (chatContainerRef.current) {
-      chatContainerRef.current.style.maxHeight = ''; // reset
-      // micro timeout para dejar que el navegador actualice el layout
-      setTimeout(() => {
-        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-      }, 50);
-    }
-  };
-
-  window.addEventListener('resize', adjustOnResize);
-  
-  // para navegadores que soportan visualViewport (mejor en móviles)
-  if ((window as any).visualViewport) {
-    (window as any).visualViewport.addEventListener('resize', adjustOnResize);
-  }
-
-  return () => {
-    window.removeEventListener('resize', adjustOnResize);
-    if ((window as any).visualViewport) {
-      (window as any).visualViewport.removeEventListener('resize', adjustOnResize);
-    }
-  };
-}, []);
-
 
   //handleSubmit
   const handleSubmit = (e: FormEvent) => {

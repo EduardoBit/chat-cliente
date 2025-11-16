@@ -1,5 +1,5 @@
 html, body {
-  height: 100%;
+  height: 100dvh;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -18,7 +18,7 @@ body {
 .App {
   display: flex;
   flex-direction: column; /* Apilado verticalmente por defecto */
-  height: 100%; /* Para PCs y navegadores que lo soportan bien */
+  height: 100dvh; /* Para PCs y navegadores que lo soportan bien */
   height: -webkit-fill-available;
   width: 100%;
   margin: 0 auto; 
@@ -494,6 +494,7 @@ header {
 
 /* ---Área de Chat --- */
 .chat-area {
+  height: 100dvh;
   flex-grow: 1; /* Ocupa todo el espacio */
   display: flex;
   flex-direction: column;

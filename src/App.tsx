@@ -168,7 +168,7 @@ function App() {
       socket.off('notificacion');
       socket.off('actualizarEstados');
     };
-  }, [socket, authUser]);
+  }, [socket, authUser, salaActual]);
 
   useEffect(() => {
    const handleClickOutside = (event: MouseEvent) => {

@@ -515,7 +515,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
   }}>
             {mensajes.map((msg, index) => (
               <div 
-                key={index} 
+                key={msg.id} 
                 className={`mensaje-fila ${msg.usuario === authUser!.username ? 'mio' : 'otro'}`}
               >
                 <Avatar username={msg.usuario} />

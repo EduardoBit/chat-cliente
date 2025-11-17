@@ -513,7 +513,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
     backgroundColor: wallpaper.startsWith('#') ? wallpaper : 'transparent',
     backgroundImage: wallpaper.startsWith('url(') ? wallpaper : 'none'
   }}>
-            {mensajes.map((msg, index) => (
+            {mensajes.map((msg) => (
               <div 
                 key={msg.id} 
                 className={`mensaje-fila ${msg.usuario === authUser!.username ? 'mio' : 'otro'}`}

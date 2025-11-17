@@ -528,14 +528,16 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                   ) : (
                     <span className="mensaje-texto">{msg.texto}</span>
                   )}
-                  {msg.usuario === authUser!.username && (
-                    <span className={`ticks ticks-${msg.estado}`}>
-                      {msg.estado === 'leido' ? '✓✓' : '✓'}
+                  <div className="mensaje-meta">
+                    <span className="timestamp">
+                      {formatTimestamp(msg.timestamp)}
                     </span>
-                  )}
-                  <span className="timestamp">
-                    {formatTimestamp(msg.timestamp)}
-                  </span>
+                    {msg.usuario === authUser!.username && (
+                      <span className={`ticks ticks-${msg.estado}`}>
+                        {msg.estado === 'leido' ? '✓✓' : '✓'}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

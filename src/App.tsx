@@ -131,7 +131,7 @@ function App() {
       setMensajes(prevMensajes => [...prevMensajes, nuevoPayload]);
       // Si el mensaje no es mío, lo marco como leído al instante
       if (nuevoPayload.usuario !== authUser?.username) {
-        marcarMensajesComoLeidos([nuevoPayload]); 
+        marcarMensajesComoLeidos([nuevoPayload], salaActual?.id);
       }
     });
 
@@ -219,14 +219,14 @@ function App() {
       setSalaActual(salaInfo);
       socket.emit('solicitarHistorial', salaInfo.id, (historial: MessagePayload[]) => {
         setMensajes(historial);
-        marcarMensajesComoLeidos(historial);
+        marcarMensajesComoLeidos(historial, salaInfo.id);
       });
     });
   };
 
   // Función para enviar los IDs de mensajes leídos al servidor
-const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[]) => {
-  if (!socket || !authUser) return;
+const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[], salaId: number | undefined) => {
+  if (!socket || !authUser || !salaId) return;
 
   const idsDeMensajesNoLeidos = mensajesRecibidos
     .filter(msg => 
@@ -237,7 +237,7 @@ const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[]) => {
 
   if (idsDeMensajesNoLeidos.length > 0) {
     socket.emit('marcarComoLeido', { 
-      salaId: salaActual?.id, 
+      salaId: salaId, 
       messageIds: idsDeMensajesNoLeidos 
     });
   }
@@ -256,6 +256,7 @@ const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[]) => {
     // El historial funciona igual que antes
     socket.emit('solicitarHistorial', salaInfo.id, (historial: MessagePayload[]) => {
       setMensajes(historial);
+      marcarMensajesComoLeidos(historial, salaInfo.id);
     });
   });
 };

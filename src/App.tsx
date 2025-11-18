@@ -31,6 +31,7 @@ interface MessagePayload {
 interface SalaDbEntry {
   id: number;
   nombre: string;
+  nombre_sistema?: string;
   no_leidos?: number; 
   ultimo_mensaje_fecha?: string;
   ultimo_mensaje_texto?: string; 
@@ -132,36 +133,45 @@ function App() {
     if (!socket) return;
 
     socket.on('receiveMessage', (nuevoPayload: MessagePayload) => {
-      setMensajes(prevMensajes => [...prevMensajes, nuevoPayload]);
-      // Si el mensaje no es mío, lo marco como leído al instante
-      if (nuevoPayload.usuario !== authUser?.username) {
-        marcarMensajesComoLeidos([nuevoPayload], salaActual?.id);
+      // 1. Si estoy DENTRO de esa sala, agrego el mensaje al chat
+      // Usamos el ID de la sala que viene en el payload
+      if (salaActual && salaActual.id === nuevoPayload.sala_id) {
+          setMensajes(prev => [...prev, nuevoPayload]);
+          
+          // Si no es mío, lo marco como leído inmediatamente
+          if (nuevoPayload.usuario !== authUser?.username) {
+             marcarMensajesComoLeidos([nuevoPayload], salaActual.id);
+          }
       }
-      setMisSalas(prevSalas => {
-        // 1. Usamos el ID que ahora viene en el mensaje
-        const salaIndex = prevSalas.findIndex(s => s.id === nuevoPayload.sala_id); 
-        
-        // Si no tengo esa sala en mi lista (ej. es un chat nuevo), no hago nada
-        if (salaIndex === -1) return prevSalas;
 
-        // Copiamos la sala para modificarla de forma segura
+      // 2. Actualizar la lista del Lobby (Reordenar + Contador)
+      setMisSalas(prevSalas => {
+        const salaIndex = prevSalas.findIndex(s => s.id === nuevoPayload.sala_id);
+        
+        if (salaIndex === -1) return prevSalas; // Si es un chat nuevo que no tenía cargado
+
         const salaActualizada = { ...prevSalas[salaIndex] };
 
-        // 2. Solo sumar contador si NO estoy viendo esa sala actualmente
-        // (O si la ventana está minimizada, pero por ahora basémonos en el ID)
-        if (salaActual?.id !== salaActualizada.id) {
+        // --- ARREGLO DE AUTONOTIFICACIÓN ---
+        // Solo sumar contador si:
+        // a) NO estoy viendo esa sala actualmente
+        // b) Y el mensaje NO lo envié yo
+        const estoyEnEstaSala = salaActual?.id === salaActualizada.id;
+        const soyElAutor = nuevoPayload.usuario === authUser?.username;
+
+        if (!estoyEnEstaSala && !soyElAutor) {
             salaActualizada.no_leidos = (salaActualizada.no_leidos || 0) + 1;
         }
+        // ------------------------------------
 
-        // 3. Actualizar el último mensaje (para la vista previa)
-        // Si es imagen, ponemos "📷 Imagen", si es texto, ponemos el texto
+        // Actualizar vista previa
         salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url ? "📷 Imagen" : (nuevoPayload.texto || "");
-        salaActualizada.ultimo_mensaje_fecha = nuevoPayload.timestamp;
+        salaActualizada.ultimo_mensaje_fecha = new Date().toISOString();
 
-        // 4. Reordenar: Mover esta sala al principio del array
+        // Mover al principio
         const nuevasSalas = [...prevSalas];
-        nuevasSalas.splice(salaIndex, 1); // La quitamos de donde estaba
-        nuevasSalas.unshift(salaActualizada); // La ponemos al inicio
+        nuevasSalas.splice(salaIndex, 1);
+        nuevasSalas.unshift(salaActualizada);
         
         return nuevasSalas;
       });
@@ -242,16 +252,24 @@ function App() {
   };
 
 
-  const handleUnirseASala = (salaNombre: string) => {
+  const handleUnirseASala = (salaObj: SalaDbEntry) => {
     if (!socket) return;
     setMensajes([]);
     setNotificaciones([]);
 
-    socket.emit('unirseASala', salaNombre, (salaInfo: SalaDbEntry) => {
-      setSalaActual(salaInfo);
-      socket.emit('solicitarHistorial', salaInfo.id, (historial: MessagePayload[]) => {
+    // 1. Determinamos el nombre técnico para el socket.
+    //    Si tiene 'nombre_sistema' (es privada), usamos ese. Si no, usamos 'nombre'.
+    const nombreParaSocket = salaObj.nombre_sistema || salaObj.nombre;
+
+    socket.emit('unirseASala', nombreParaSocket, () => {
+      // 2. ¡TRUCO! Guardamos en el estado el objeto 'salaObj' que vino del click.
+      //    Este objeto tiene el nombre correcto (ej: "Juan") y no el técnico.
+      setSalaActual(salaObj); 
+      
+      // 3. Cargamos el historial usando el ID de la sala
+      socket.emit('solicitarHistorial', salaObj.id, (historial: MessagePayload[]) => {
         setMensajes(historial);
-        marcarMensajesComoLeidos(historial, salaInfo.id);
+        marcarMensajesComoLeidos(historial, salaObj.id);
       });
     });
   };
@@ -295,8 +313,19 @@ const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[], salaId: n
 
   const handleCrearSala = (e: FormEvent) => {
     e.preventDefault();
-    if (nuevaSala.trim() === '') return;
-    handleUnirseASala(nuevaSala);
+    if (!socket || nuevaSala.trim() === '') return;
+
+    //Enviamos el nombre escrito (string) al backend
+    socket.emit('unirseASala', nuevaSala, (salaInfoBackend: SalaDbEntry) => {
+      //El backend crea/busca la sala y nos devuelve el OBJETO con el ID
+      setSalaActual(salaInfoBackend); 
+      //Ahora que tenemos el ID que nos dio el backend, pedimos el historial
+      socket.emit('solicitarHistorial', salaInfoBackend.id, (historial: MessagePayload[]) => {
+        setMensajes(historial);
+        marcarMensajesComoLeidos(historial, salaInfoBackend.id);
+      });
+    });
+
     setNuevaSala(''); // Limpiamos el input
   };
 
@@ -425,7 +454,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                 <li className="sala-item-empty">Aún no te has unido a ninguna sala.</li>
               )}
               {misSalas.map(s => (
-                <li key={s.id} className="sala-item" onClick={() => handleUnirseASala(s.nombre)}>
+                <li key={s.id} className="sala-item" onClick={() => handleUnirseASala(s)}>
                   <Avatar username={s.nombre} />
                   <div className="sala-info">
                     <div className="sala-header-row">
@@ -460,7 +489,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
               {salasPublicas.length === 0 && <li className="sala-item-empty">No hay salas públicas activas.</li>}
               {salasPublicas.map(s => (
                 !misSalas.find(miSala => miSala.id === s.id) && (
-                  <li key={s.id} className="sala-item" onClick={() => handleUnirseASala(s.nombre)}>
+                  <li key={s.id} className="sala-item" onClick={() => handleUnirseASala(s)}>
                     <Avatar username={s.nombre} />
                     <div className="sala-info"><span className="sala-nombre"># {s.nombre}</span></div>
                   </li>

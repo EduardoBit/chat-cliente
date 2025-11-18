@@ -194,26 +194,20 @@ function App() {
       }, 5000);
     });
     socket.on('actualizarEstados', (payload: { messageIds: number[], nuevoEstado: string }) => {
-      console.log('🔵 [FRONTEND] Evento actualizarEstados recibido:', payload);
       
       setMensajes(prevMensajes => {
-        console.log('🔵 [FRONTEND] Buscando en mensajes actuales:', prevMensajes.length);
-        
         const nuevosMensajes = prevMensajes.map(msg => {
           // Comparamos IDs asegurándonos de que sean del mismo tipo
           const esElMensaje = payload.messageIds.includes(msg.id);
           
           if (esElMensaje) {
-            console.log(`✅ [FRONTEND] Actualizando mensaje ID: ${msg.id} a estado: ${payload.nuevoEstado}`);
             return { ...msg, estado: payload.nuevoEstado };
           }
           return msg;
         });
-        
         return nuevosMensajes;
       });
     });
-    
 
     // Limpieza
     return () => {

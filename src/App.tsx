@@ -133,42 +133,43 @@ function App() {
     if (!socket) return;
 
     socket.on('receiveMessage', (nuevoPayload: MessagePayload) => {
-      // 1. Si estoy DENTRO de esa sala, agrego el mensaje al chat
-      // Usamos el ID de la sala que viene en el payload
+      // Si estoy DENTRO de esa sala, agrego el mensaje al chat visualmente
       if (salaActual && salaActual.id === nuevoPayload.sala_id) {
           setMensajes(prev => [...prev, nuevoPayload]);
           
-          // Si no es mío, lo marco como leído inmediatamente
+          // Si el mensaje es de OTRO, lo marco como leído inmediatamente
           if (nuevoPayload.usuario !== authUser?.username) {
              marcarMensajesComoLeidos([nuevoPayload], salaActual.id);
           }
       }
 
-      // 2. Actualizar la lista del Lobby (Reordenar + Contador)
+      // Actualizar la lista lateral (Lobby)
       setMisSalas(prevSalas => {
         const salaIndex = prevSalas.findIndex(s => s.id === nuevoPayload.sala_id);
         
-        if (salaIndex === -1) return prevSalas; // Si es un chat nuevo que no tenía cargado
+        // Si es un chat nuevo que no tenía en la lista, no hago nada (o podrías recargar la lista)
+        if (salaIndex === -1) return prevSalas;
 
         const salaActualizada = { ...prevSalas[salaIndex] };
 
-        // --- ARREGLO DE AUTONOTIFICACIÓN ---
-        // Solo sumar contador si:
-        // a) NO estoy viendo esa sala actualmente
-        // b) Y el mensaje NO lo envié yo
+        // --- UTO-NOTIFICACIÓN ---
         const estoyEnEstaSala = salaActual?.id === salaActualizada.id;
-        const soyElAutor = nuevoPayload.usuario === authUser?.username;
+        const soyElAutor = nuevoPayload.usuario === authUser?.username; // <-- Chequeamos si soy yo
 
+        // Solo sumamos si NO estoy en la sala Y si NO soy el autor
         if (!estoyEnEstaSala && !soyElAutor) {
             salaActualizada.no_leidos = (salaActualizada.no_leidos || 0) + 1;
         }
-        // ------------------------------------
-
-        // Actualizar vista previa
-        salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url ? "📷 Imagen" : (nuevoPayload.texto || "");
+        
+        // --- PREVIEW DE FOTO ---
+        // Si hay imagen_url, mostramos el texto de foto, si no, el texto normal
+        salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url 
+            ? "📷 Foto" 
+            : (nuevoPayload.texto || "");
+            
         salaActualizada.ultimo_mensaje_fecha = new Date().toISOString();
 
-        // Mover al principio
+        // Reordenar: Mover al principio
         const nuevasSalas = [...prevSalas];
         nuevasSalas.splice(salaIndex, 1);
         nuevasSalas.unshift(salaActualizada);

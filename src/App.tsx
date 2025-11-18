@@ -25,11 +25,15 @@ interface MessagePayload {
   imagen_url?: string | null; 
   timestamp?: string; 
   estado: string;
+  sala_id: number;
 }
 
 interface SalaDbEntry {
   id: number;
   nombre: string;
+  no_leidos?: number; 
+  ultimo_mensaje_fecha?: string;
+  ultimo_mensaje_texto?: string; 
 }
 
 interface AuthUser {
@@ -133,6 +137,34 @@ function App() {
       if (nuevoPayload.usuario !== authUser?.username) {
         marcarMensajesComoLeidos([nuevoPayload], salaActual?.id);
       }
+      setMisSalas(prevSalas => {
+        // 1. Usamos el ID que ahora viene en el mensaje
+        const salaIndex = prevSalas.findIndex(s => s.id === nuevoPayload.sala_id); 
+        
+        // Si no tengo esa sala en mi lista (ej. es un chat nuevo), no hago nada
+        if (salaIndex === -1) return prevSalas;
+
+        // Copiamos la sala para modificarla de forma segura
+        const salaActualizada = { ...prevSalas[salaIndex] };
+
+        // 2. Solo sumar contador si NO estoy viendo esa sala actualmente
+        // (O si la ventana está minimizada, pero por ahora basémonos en el ID)
+        if (salaActual?.id !== salaActualizada.id) {
+            salaActualizada.no_leidos = (salaActualizada.no_leidos || 0) + 1;
+        }
+
+        // 3. Actualizar el último mensaje (para la vista previa)
+        // Si es imagen, ponemos "📷 Imagen", si es texto, ponemos el texto
+        salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url ? "📷 Imagen" : (nuevoPayload.texto || "");
+        salaActualizada.ultimo_mensaje_fecha = nuevoPayload.timestamp;
+
+        // 4. Reordenar: Mover esta sala al principio del array
+        const nuevasSalas = [...prevSalas];
+        nuevasSalas.splice(salaIndex, 1); // La quitamos de donde estaba
+        nuevasSalas.unshift(salaActualizada); // La ponemos al inicio
+        
+        return nuevasSalas;
+      });
     });
 
     socket.on('alguienEscribe', (usuario: string) => {
@@ -396,9 +428,27 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                 <li key={s.id} className="sala-item" onClick={() => handleUnirseASala(s.nombre)}>
                   <Avatar username={s.nombre} />
                   <div className="sala-info">
-                    <span className="sala-nombre">{s.nombre}</span>
+                    <div className="sala-header-row">
+                      <span className="sala-nombre">{s.nombre}</span>
+                      {/* Hora del último mensaje (Opcional) */}
+                      {s.ultimo_mensaje_fecha && (
+                        <span className="sala-hora">
+                          {new Date(s.ultimo_mensaje_fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="sala-preview-row">
+                      <span className="sala-ultimo-mensaje">
+                        {s.ultimo_mensaje_texto || "No hay mensajes"}
+                      </span>
+
+                      {/* --- EL CÍRCULO VERDE --- */}
+                      {s.no_leidos && s.no_leidos > 0 ? (
+                        <span className="badge-no-leidos">{s.no_leidos}</span>
+                      ) : null}
+                    </div>
                   </div>
-                  <button>Unirse</button>
                 </li>
               ))}
             </ul>

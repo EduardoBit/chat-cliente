@@ -5,7 +5,7 @@ import Avatar from './Avatar';
 import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
 
 const formatTimestamp = (timestamp?: string): string => {
-  if (!timestamp) return ''; 
+  if (!timestamp) return '';
   try {
     const date = new Date(timestamp);
     return date.toLocaleTimeString(navigator.language, {
@@ -14,16 +14,17 @@ const formatTimestamp = (timestamp?: string): string => {
     });
   } catch (error) {
     console.error("Error al formatear la fecha:", error);
-    return ''; 
+    return '';
   }
 };
 
 interface MessagePayload {
   id: number;
   usuario: string;
+  usuario_id?: number;
   texto?: string | null;
-  imagen_url?: string | null; 
-  timestamp?: string; 
+  imagen_url?: string | null;
+  timestamp?: string;
   estado: string;
   sala_id: number;
 }
@@ -32,9 +33,10 @@ interface SalaDbEntry {
   id: number;
   nombre: string;
   nombre_sistema?: string;
-  no_leidos?: number; 
+  no_leidos?: number;
   ultimo_mensaje_fecha?: string;
-  ultimo_mensaje_texto?: string; 
+  ultimo_mensaje_texto?: string;
+  ultimo_mensaje_usuario_id?: number;
 }
 
 interface AuthUser {
@@ -58,6 +60,8 @@ function App() {
 
   // Reemplaza a 'enLobby' y 'salaActual' (string)
   const [salaActual, setSalaActual] = useState<SalaDbEntry | null>(null);
+  const authUserRef = useRef(authUser);
+  const salaActualRef = useRef(salaActual);
 
   const [misSalas, setMisSalas] = useState<SalaDbEntry[]>([]);
   const [salasPublicas, setSalasPublicas] = useState<SalaDbEntry[]>([]);
@@ -65,7 +69,7 @@ function App() {
   const [wallpaper, setWallpaper] = useState<string>('#e5ddd5');
   const [isUploading, setIsUploading] = useState(false);
 
-  // Estados del Chat 
+  // Estados del Chat
   const [mensajeActual, setMensajeActual] = useState('');
   const [mensajes, setMensajes] = useState<MessagePayload[]>([]);
   const [typingDisplay, setTypingDisplay] = useState('');
@@ -74,13 +78,18 @@ function App() {
   interface UserEntry { id: number; username: string; }
   const [usuariosGlobales, setUsuariosGlobales] = useState<UserEntry[]>([]);
 
-  // Refs 
+  // Refs
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<number | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wallpaperInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+  authUserRef.current = authUser;
+  salaActualRef.current = salaActual;
+}, [authUser, salaActual]);
 
 // useEffect para manejar la conexión del socket
   useEffect(() => {
@@ -99,7 +108,7 @@ function App() {
       newSocket.emit('solicitarMisSalas', (salas: SalaDbEntry[]) => {
         setMisSalas(salas);
       });
-  
+
       newSocket.emit('solicitarSalasPublicas', (salas: SalaDbEntry[]) => {
         setSalasPublicas(salas);
       });
@@ -128,96 +137,112 @@ function App() {
 }, []);
 
   //useEffect para Sockets
-  useEffect(() => {
-    // Si el socket no está listo, no hacemos nada
-    if (!socket) return;
+useEffect(() => {
+  if (!socket) return;
 
-    socket.on('receiveMessage', (nuevoPayload: MessagePayload) => {
-      // Si estoy DENTRO de esa sala, agrego el mensaje al chat visualmente
-      if (salaActual && salaActual.id === nuevoPayload.sala_id) {
+  socket.on('receiveMessage', (nuevoPayload: MessagePayload) => {
+
+      const usuarioActual = authUserRef.current;
+      const salaAbierta = salaActualRef.current;
+
+      // --- DEBUG LOGS (Míralos en la consola) ---
+      console.log("RECV MSG:", nuevoPayload);
+      console.log("YO SOY:", usuarioActual);
+
+      const idMiUsuario = Number(usuarioActual?.id);
+      const idAutorMensaje = Number(nuevoPayload.usuario_id);
+
+      // Comparación EXPLICITA
+      const soyElAutor = idMiUsuario === idAutorMensaje;
+      console.log(`COMPARANDO IDs: ${idMiUsuario} === ${idAutorMensaje} ? ${soyElAutor}`);
+
+      const idSalaAbierta = salaAbierta ? String(salaAbierta.id) : null;
+      const idSalaMensaje = String(nuevoPayload.sala_id);
+      const estoyEnEstaSala = idSalaAbierta === idSalaMensaje;
+
+      // 1. Actualizar Chat
+      if (estoyEnEstaSala) {
           setMensajes(prev => [...prev, nuevoPayload]);
-          
-          // Si el mensaje es de OTRO, lo marco como leído inmediatamente
-          if (nuevoPayload.usuario !== authUser?.username) {
-             marcarMensajesComoLeidos([nuevoPayload], salaActual.id);
+          if (!soyElAutor) {
+             marcarMensajesComoLeidos([nuevoPayload], salaAbierta?.id);
           }
       }
 
-      // Actualizar la lista lateral (Lobby)
+      // 2. Actualizar Lobby
       setMisSalas(prevSalas => {
-        const salaIndex = prevSalas.findIndex(s => s.id === nuevoPayload.sala_id);
-        
-        // Si es un chat nuevo que no tenía en la lista, no hago nada (o podrías recargar la lista)
+        const salaIndex = prevSalas.findIndex(s => String(s.id) === idSalaMensaje);
+
         if (salaIndex === -1) return prevSalas;
 
         const salaActualizada = { ...prevSalas[salaIndex] };
 
-        // --- UTO-NOTIFICACIÓN ---
-        const estoyEnEstaSala = salaActual?.id === salaActualizada.id;
-        const soyElAutor = nuevoPayload.usuario === authUser?.username; // <-- Chequeamos si soy yo
-
-        // Solo sumamos si NO estoy en la sala Y si NO soy el autor
-        if (!estoyEnEstaSala && !soyElAutor) {
+        // --- LÓGICA ---
+        if (soyElAutor) {
+            console.log("--> Soy el autor. Contador a 0.");
+            salaActualizada.no_leidos = 0;
+        } else if (estoyEnEstaSala) {
+            console.log("--> Estoy en la sala. Contador a 0.");
+            salaActualizada.no_leidos = 0;
+        } else {
+            console.log("--> Mensaje nuevo. Sumando +1.");
             salaActualizada.no_leidos = (salaActualizada.no_leidos || 0) + 1;
         }
-        
-        // --- PREVIEW DE FOTO ---
-        // Si hay imagen_url, mostramos el texto de foto, si no, el texto normal
-        salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url 
-            ? "📷 Foto" 
-            : (nuevoPayload.texto || "");
-            
-        salaActualizada.ultimo_mensaje_fecha = new Date().toISOString();
+        // -------------
 
-        // Reordenar: Mover al principio
+        salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url ? "📷 Foto" : (nuevoPayload.texto || "");
+        salaActualizada.ultimo_mensaje_fecha = new Date().toISOString();
+        salaActualizada.ultimo_mensaje_usuario_id = Number(nuevoPayload.usuario_id); // Guardamos esto por si acaso
+
         const nuevasSalas = [...prevSalas];
         nuevasSalas.splice(salaIndex, 1);
         nuevasSalas.unshift(salaActualizada);
-        
+
         return nuevasSalas;
       });
     });
 
-    socket.on('alguienEscribe', (usuario: string) => {
-      setTypingDisplay(`${usuario} está escribiendo...`);
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-      typingTimerRef.current = setTimeout(() => setTypingDisplay(''), 2000);
-    });
-    socket.on('actualizarListaUsuarios', (lista: string[]) => {
-      setUsuariosConectados(lista);
-    });
-    socket.on('notificacion', (texto: string) => {
-      const nuevaNoti = { id: Date.now(), texto };
-      setNotificaciones(prev => [...prev, nuevaNoti]);
-      setTimeout(() => {
-        setNotificaciones(prev => prev.filter(n => n.id !== nuevaNoti.id));
-      }, 5000);
-    });
-    socket.on('actualizarEstados', (payload: { messageIds: number[], nuevoEstado: string }) => {
-      
-      setMensajes(prevMensajes => {
-        const nuevosMensajes = prevMensajes.map(msg => {
-          // Comparamos IDs asegurándonos de que sean del mismo tipo
-          const esElMensaje = payload.messageIds.includes(msg.id);
-          
-          if (esElMensaje) {
-            return { ...msg, estado: payload.nuevoEstado };
-          }
-          return msg;
-        });
-        return nuevosMensajes;
-      });
-    });
 
-    // Limpieza
-    return () => {
-      socket.off('receiveMessage');
-      socket.off('alguienEscribe');
-      socket.off('actualizarListaUsuarios');
-      socket.off('notificacion');
-      socket.off('actualizarEstados');
-    };
-  }, [socket, authUser, salaActual]);
+
+
+  // Otros listeners (sin cambios lógicos, los mantenemos)
+  const handleAlguienEscribe = (usuario: string) => {
+    setTypingDisplay(`${usuario} está escribiendo...`);
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    typingTimerRef.current = window.setTimeout(() => setTypingDisplay(''), 2000);
+  };
+
+  const handleActualizarListaUsuarios = (lista: string[]) => setUsuariosConectados(lista);
+
+  const handleNotificacion = (texto: string) => {
+    const nuevaNoti = { id: Date.now(), texto };
+    setNotificaciones(prev => [...prev, nuevaNoti]);
+    setTimeout(() => setNotificaciones(prev => prev.filter(n => n.id !== nuevaNoti.id)), 5000);
+  };
+
+  const handleActualizarEstados = (payload: { messageIds: number[]; nuevoEstado: string }) => {
+    setMensajes(prevMensajes =>
+      prevMensajes.map(msg =>
+        payload.messageIds.includes(msg.id) ? { ...msg, estado: payload.nuevoEstado } : msg
+      )
+    );
+  };
+
+  // Registro
+  socket.on('alguienEscribe', handleAlguienEscribe);
+  socket.on('actualizarListaUsuarios', handleActualizarListaUsuarios);
+  socket.on('notificacion', handleNotificacion);
+  socket.on('actualizarEstados', handleActualizarEstados);
+
+  // Limpieza: pasar las mismas referencias a off()
+  return () => {
+    socket.off('receiveMessage');
+    socket.off('alguienEscribe', handleAlguienEscribe);
+    socket.off('actualizarListaUsuarios', handleActualizarListaUsuarios);
+    socket.off('notificacion', handleNotificacion);
+    socket.off('actualizarEstados', handleActualizarEstados);
+  };
+}, [socket]);
+
 
   useEffect(() => {
    const handleClickOutside = (event: MouseEvent) => {
@@ -240,7 +265,7 @@ function App() {
   }, [mostrarEmojiPicker]);
 
 
-  // useEffect para Auto-Scroll 
+  // useEffect para Auto-Scroll
   useEffect(() => {
     if (chatContainerRef.current) {
       const chatContainer = chatContainerRef.current;
@@ -264,6 +289,10 @@ function App() {
     setMensajes([]);
     setNotificaciones([]);
 
+    setMisSalas(prevSalas => prevSalas.map(s =>
+      s.id === salaObj.id ? { ...s, no_leidos: 0 } : s
+    ));
+
     // 1. Determinamos el nombre técnico para el socket.
     //    Si tiene 'nombre_sistema' (es privada), usamos ese. Si no, usamos 'nombre'.
     const nombreParaSocket = salaObj.nombre_sistema || salaObj.nombre;
@@ -271,8 +300,8 @@ function App() {
     socket.emit('unirseASala', nombreParaSocket, () => {
       // 2. ¡TRUCO! Guardamos en el estado el objeto 'salaObj' que vino del click.
       //    Este objeto tiene el nombre correcto (ej: "Juan") y no el técnico.
-      setSalaActual(salaObj); 
-      
+      setSalaActual(salaObj);
+
       // 3. Cargamos el historial usando el ID de la sala
       socket.emit('solicitarHistorial', salaObj.id, (historial: MessagePayload[]) => {
         setMensajes(historial);
@@ -286,16 +315,16 @@ const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[], salaId: n
   if (!socket || !authUser || !salaId) return;
 
   const idsDeMensajesNoLeidos = mensajesRecibidos
-    .filter(msg => 
-      msg.usuario !== authUser.username && // Que no sean míos
-      msg.estado !== 'leido'                // Y que no estén ya leídos
-    )
-    .map(msg => msg.id); // Saca solo los IDs
+  .filter(msg =>
+    Number(msg.usuario_id) !== Number(authUser.id) &&
+    msg.estado !== 'leido'
+  )
+  .map(msg => msg.id);
 
   if (idsDeMensajesNoLeidos.length > 0) {
-    socket.emit('marcarComoLeido', { 
-      salaId: salaId, 
-      messageIds: idsDeMensajesNoLeidos 
+    socket.emit('marcarComoLeido', {
+      salaId: salaId,
+      messageIds: idsDeMensajesNoLeidos
     });
   }
 };
@@ -325,7 +354,7 @@ const marcarMensajesComoLeidos = (mensajesRecibidos: MessagePayload[], salaId: n
     //Enviamos el nombre escrito (string) al backend
     socket.emit('unirseASala', nuevaSala, (salaInfoBackend: SalaDbEntry) => {
       //El backend crea/busca la sala y nos devuelve el OBJETO con el ID
-      setSalaActual(salaInfoBackend); 
+      setSalaActual(salaInfoBackend);
       //Ahora que tenemos el ID que nos dio el backend, pedimos el historial
       socket.emit('solicitarHistorial', salaInfoBackend.id, (historial: MessagePayload[]) => {
         setMensajes(historial);
@@ -382,7 +411,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
   if (!file || !authUser) return;
 
   // Mostrar un indicador de carga
-  alert("Subiendo fondo..."); 
+  alert("Subiendo fondo...");
 
   try {
     const formData = new FormData();
@@ -425,7 +454,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
   };
 
   const handleSetWallpaper = (bgValue: string) => {
-    setWallpaper(bgValue); 
+    setWallpaper(bgValue);
     localStorage.setItem('chatWallpaper', bgValue);
   };
 
@@ -442,7 +471,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
           <p>Hola, {authUser.username}</p>
           <button onClick={handleLogout} className="btn-logout">Cerrar Sesión</button>
         </header>
-        
+
         <form onSubmit={handleCrearSala} className="crear-sala-form">
           <input
             type="text"
@@ -480,7 +509,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                       </span>
 
                       {/* --- EL CÍRCULO VERDE --- */}
-                      {s.no_leidos && s.no_leidos > 0 ? (
+                      {s.no_leidos && s.no_leidos > 0 && s.ultimo_mensaje_usuario_id !== authUser?.id ? (
                         <span className="badge-no-leidos">{s.no_leidos}</span>
                       ) : null}
                     </div>
@@ -489,7 +518,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
               ))}
             </ul>
           </div>
-          
+
           <div className="lista-seccion">
             <h3>Salas Públicas</h3>
             <ul className="lista-salas">
@@ -539,7 +568,7 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
           </ul>
         </aside>
 
-        <main className="chat-area"> 
+        <main className="chat-area">
           <header>
             <button onClick={handleDejarSala} className="btn-salir">
               ←
@@ -554,22 +583,22 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
               <div className="settings-dropdown">
                 <span>Cambiar Fondo</span>
                 <div className="wallpaper-options">
-                  <button 
-                    className="wp-option" 
+                  <button
+                    className="wp-option"
                     style={{ backgroundImage: `url('/fondochat.jpg')` }}
                     onClick={() => handleSetWallpaper('url(/fondochat.jpg)')}
                   ></button>
-                  <button 
-                    className="wp-option" 
+                  <button
+                    className="wp-option"
                     style={{ backgroundImage: `url('/fondochat2.jpg')` }}
                     onClick={() => handleSetWallpaper('url(/fondochat2.jpg)')}
                   ></button>
-                  <button 
-                    className="wp-option" 
+                  <button
+                    className="wp-option"
                     style={{ backgroundImage: `url('/fondochat3.jpg')` }}
                     onClick={() => handleSetWallpaper('url(/fondochat3.jpg)')}
                   ></button>
-                  <button 
+                  <button
                     className="wp-option wp-upload-btn"
                     onClick={() => wallpaperInputRef.current?.click()}
                   >
@@ -577,9 +606,9 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                   </button>
                 </div>
               </div>
-              <input 
-                type="file" 
-                ref={wallpaperInputRef} 
+              <input
+                type="file"
+                ref={wallpaperInputRef}
                 onChange={handleWallpaperUpload}
                 style={{ display: 'none' }}
                 accept="image/*"
@@ -595,13 +624,13 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
             ))}
           </div>
 
-          <div className="lista-mensajes" ref={chatContainerRef} style={{ 
+          <div className="lista-mensajes" ref={chatContainerRef} style={{
     backgroundColor: wallpaper.startsWith('#') ? wallpaper : 'transparent',
     backgroundImage: wallpaper.startsWith('url(') ? wallpaper : 'none'
   }}>
             {mensajes.map((msg) => (
-              <div 
-                key={msg.id} 
+              <div
+                key={msg.id}
                 className={`mensaje-fila ${msg.usuario === authUser!.username ? 'mio' : 'otro'}`}
               >
                 <Avatar username={msg.usuario} />
@@ -628,17 +657,17 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
               </div>
             ))}
           </div>
-          
+
           <form onSubmit={handleSubmit} className="formulario-chat">
-            <button 
-                type="button" 
-                className="btn-emoji-toggle" 
+            <button
+                type="button"
+                className="btn-emoji-toggle"
                 onClick={() => setMostrarEmojiPicker(prev => !prev)}
                 aria-label="Abrir selector de emojis"
-                ref={emojiButtonRef} 
+                ref={emojiButtonRef}
              >😊</button>
-             <button 
-                type="button" 
+             <button
+                type="button"
                 className="btn-attach"
                 onClick={() => fileInputRef.current?.click()} // Abre el input oculto
                 disabled={isUploading} // Deshabilita mientras sube
@@ -646,9 +675,9 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                 📎
               </button>
               {/* Input de archivo oculto */}
-              <input 
-                type="file" 
-                ref={fileInputRef} 
+              <input
+                type="file"
+                ref={fileInputRef}
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
                 accept="image/*,video/*" // Acepta imágenes y videos
@@ -667,13 +696,13 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
               <button type="submit" disabled={isUploading}>▶</button>
             {mostrarEmojiPicker && (
               <div className="emoji-picker-contenedor">
-                <EmojiPicker 
+                <EmojiPicker
                   onEmojiClick={(emojiData: EmojiClickData) => {
                     // Añade el emoji al mensaje actual
                     setMensajeActual(prev => prev + emojiData.emoji);
                     // Opcional: cierra el picker después de seleccionar
                     setMostrarEmojiPicker(false);
-                  }} 
+                  }}
                   skinTonesDisabled={true}
                 />
               </div>
@@ -683,12 +712,12 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
           <div className="typing-indicator">
             {typingDisplay}
           </div>
-        </main> 
-      </div> 
+        </main>
+      </div>
     );
   }
-  
-  return null; 
+
+  return null;
 }
 
 interface AuthFormProps {
@@ -728,7 +757,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ setAuthUser }) => {
         // Si se loguea
         const { token, username, userId } = data;
         const user: AuthUser = { id: userId, username, token };
-        
+
         localStorage.setItem('token', token); // Guardamos el token
         setAuthUser(user); // Pasamos el usuario al componente App
       }
@@ -759,8 +788,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ setAuthUser }) => {
           required
         />
         <button type="submit">{isRegistering ? 'Registrarse' : 'Entrar'}</button>
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="btn-toggle-auth"
           onClick={() => { setIsRegistering(!isRegistering); setError(''); }}
         >

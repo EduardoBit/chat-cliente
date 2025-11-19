@@ -146,12 +146,6 @@ useEffect(() => {
       const usuarioActual = authUserRef.current;
       const salaAbierta = salaActualRef.current;
 
-      // --- DIAGNÓSTICO DE SALA ---
-      console.log("📢 MENSAJE RECIBIDO:", nuevoPayload);
-      console.log("🏠 Sala Abierta (State):", salaAbierta);
-      console.log("🆔 ID Sala Mensaje (Payload):", nuevoPayload.sala_id);
-      console.log("🆔 ID Sala Abierta (Ref):", salaAbierta?.id);
-
       const idMiUsuario = Number(usuarioActual?.id);
       const idAutorMensaje = Number(nuevoPayload.usuario_id);
 
@@ -171,9 +165,6 @@ useEffect(() => {
              marcarMensajesComoLeidos([nuevoPayload], salaAbierta?.id);
           }
       }
-
-      console.log(`🤔 Comparación: '${idSalaAbierta}' === '${idSalaMensaje}' ?`, idSalaAbierta === idSalaMensaje);
-      // ---------------------------
 
       // Actualizar Lobby
       setMisSalas(prevSalas => {

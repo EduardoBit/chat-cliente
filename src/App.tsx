@@ -146,10 +146,6 @@ useEffect(() => {
       const usuarioActual = authUserRef.current;
       const salaAbierta = salaActualRef.current;
 
-      // --- DEBUG LOGS (Míralos en la consola) ---
-      console.log("RECV MSG:", nuevoPayload);
-      console.log("YO SOY:", usuarioActual);
-
       const idMiUsuario = Number(usuarioActual?.id);
       const idAutorMensaje = Number(nuevoPayload.usuario_id);
 
@@ -283,7 +279,7 @@ useEffect(() => {
 
 
   const handleUnirseASala = (salaObj: SalaDbEntry) => {
-    if (!socket) return;
+    if (!socket || !authUser) return;
     setMensajes([]);
     setNotificaciones([]);
 
@@ -500,22 +496,25 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                         </span>
                       )}
                     </div>
-
                     <div className="sala-preview-row">
                       <div className="mensaje-preview-wrapper">
-                        {/* SI YO FUI EL AUTOR, MUESTRO EL TICK */}
+                        
+                        {/* LÓGICA DE TICKS EN LOBBY */}
+                        {/* Solo mostrar si YO soy el autor del último mensaje */}
                         {String(s.ultimo_mensaje_usuario_id) === String(authUser?.id) && s.ultimo_mensaje_estado && (
-                          <span className={`ticks-lobby ticks-${s.ultimo_mensaje_estado}`}>
-                            {s.ultimo_mensaje_estado === 'leido' ? '✓✓' : '✓'}
-                          </span>
+                           <span className={`ticks-lobby ticks-${s.ultimo_mensaje_estado}`}>
+                             {/* Si es 'leido' mostramos doble check, si no, uno solo */}
+                             {s.ultimo_mensaje_estado === 'leido' ? '✓✓' : '✓'}
+                           </span>
                         )}
+                        {/* ----------------------- */}
 
                         <span className="sala-ultimo-mensaje">
                           {s.ultimo_mensaje_texto || "No hay mensajes"}
                         </span>
                       </div>
 
-                      {/* CIRCULO VERDE (Solo si hay no leídos y no fui yo) */}
+                      {/* CÍRCULO VERDE (Solo si NO soy el autor) */}
                       {s.no_leidos && s.no_leidos > 0 && String(s.ultimo_mensaje_usuario_id) !== String(authUser?.id) ? (
                         <span className="badge-no-leidos">{s.no_leidos}</span>
                       ) : null}

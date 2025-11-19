@@ -855,12 +855,14 @@ header h3 {
   align-items: center;
   overflow: hidden;
   flex-grow: 1; /* Para que ocupe el espacio antes del círculo verde */
+  margin-right: 10px;
 }
 
 .ticks-lobby {
   font-size: 0.8rem;
   margin-right: 4px; /* Separación con el texto */
   font-weight: bold;
+  min-width: 15px;
 }
 
 /* Reutilizamos los colores */

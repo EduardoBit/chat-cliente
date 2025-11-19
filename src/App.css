@@ -850,6 +850,23 @@ header h3 {
   color: #53bdeb; /* Azul de WhatsApp */
 }
 
+.mensaje-preview-wrapper {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  flex-grow: 1; /* Para que ocupe el espacio antes del círculo verde */
+}
+
+.ticks-lobby {
+  font-size: 0.8rem;
+  margin-right: 4px; /* Separación con el texto */
+  font-weight: bold;
+}
+
+/* Reutilizamos los colores */
+.ticks-enviado { color: #8696a0; }
+.ticks-leido { color: #53bdeb !important; }
+
 @media (min-width: 768px) {
 
 }

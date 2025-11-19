@@ -37,6 +37,7 @@ interface SalaDbEntry {
   ultimo_mensaje_fecha?: string;
   ultimo_mensaje_texto?: string;
   ultimo_mensaje_usuario_id?: number;
+  ultimo_mensaje_estado?: string;
 }
 
 interface AuthUser {
@@ -154,13 +155,12 @@ useEffect(() => {
 
       // Comparación EXPLICITA
       const soyElAutor = idMiUsuario === idAutorMensaje;
-      console.log(`COMPARANDO IDs: ${idMiUsuario} === ${idAutorMensaje} ? ${soyElAutor}`);
 
       const idSalaAbierta = salaAbierta ? String(salaAbierta.id) : null;
       const idSalaMensaje = String(nuevoPayload.sala_id);
       const estoyEnEstaSala = idSalaAbierta === idSalaMensaje;
 
-      // 1. Actualizar Chat
+      //  Actualizar Chat
       if (estoyEnEstaSala) {
           setMensajes(prev => [...prev, nuevoPayload]);
           if (!soyElAutor) {
@@ -168,7 +168,7 @@ useEffect(() => {
           }
       }
 
-      // 2. Actualizar Lobby
+      // Actualizar Lobby
       setMisSalas(prevSalas => {
         const salaIndex = prevSalas.findIndex(s => String(s.id) === idSalaMensaje);
 
@@ -178,20 +178,18 @@ useEffect(() => {
 
         // --- LÓGICA ---
         if (soyElAutor) {
-            console.log("--> Soy el autor. Contador a 0.");
             salaActualizada.no_leidos = 0;
         } else if (estoyEnEstaSala) {
-            console.log("--> Estoy en la sala. Contador a 0.");
             salaActualizada.no_leidos = 0;
         } else {
-            console.log("--> Mensaje nuevo. Sumando +1.");
             salaActualizada.no_leidos = (salaActualizada.no_leidos || 0) + 1;
         }
         // -------------
 
         salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url ? "📷 Foto" : (nuevoPayload.texto || "");
         salaActualizada.ultimo_mensaje_fecha = new Date().toISOString();
-        salaActualizada.ultimo_mensaje_usuario_id = Number(nuevoPayload.usuario_id); // Guardamos esto por si acaso
+        salaActualizada.ultimo_mensaje_usuario_id = Number(nuevoPayload.usuario_id);
+        salaActualizada.ultimo_mensaje_estado = nuevoPayload.estado;
 
         const nuevasSalas = [...prevSalas];
         nuevasSalas.splice(salaIndex, 1);
@@ -504,12 +502,21 @@ const handleWallpaperUpload = async (event: React.ChangeEvent<HTMLInputElement>)
                     </div>
 
                     <div className="sala-preview-row">
-                      <span className="sala-ultimo-mensaje">
-                        {s.ultimo_mensaje_texto || "No hay mensajes"}
-                      </span>
+                      <div className="mensaje-preview-wrapper">
+                        {/* SI YO FUI EL AUTOR, MUESTRO EL TICK */}
+                        {String(s.ultimo_mensaje_usuario_id) === String(authUser?.id) && s.ultimo_mensaje_estado && (
+                          <span className={`ticks-lobby ticks-${s.ultimo_mensaje_estado}`}>
+                            {s.ultimo_mensaje_estado === 'leido' ? '✓✓' : '✓'}
+                          </span>
+                        )}
 
-                      {/* --- EL CÍRCULO VERDE --- */}
-                      {s.no_leidos && s.no_leidos > 0 && s.ultimo_mensaje_usuario_id !== authUser?.id ? (
+                        <span className="sala-ultimo-mensaje">
+                          {s.ultimo_mensaje_texto || "No hay mensajes"}
+                        </span>
+                      </div>
+
+                      {/* CIRCULO VERDE (Solo si hay no leídos y no fui yo) */}
+                      {s.no_leidos && s.no_leidos > 0 && String(s.ultimo_mensaje_usuario_id) !== String(authUser?.id) ? (
                         <span className="badge-no-leidos">{s.no_leidos}</span>
                       ) : null}
                     </div>

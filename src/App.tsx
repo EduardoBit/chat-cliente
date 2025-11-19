@@ -38,6 +38,7 @@ interface SalaDbEntry {
   ultimo_mensaje_texto?: string;
   ultimo_mensaje_usuario_id?: number;
   ultimo_mensaje_estado?: string;
+  ultimo_mensaje_id?: number;
 }
 
 interface AuthUser {
@@ -187,6 +188,7 @@ useEffect(() => {
         salaActualizada.ultimo_mensaje_texto = nuevoPayload.imagen_url ? "📷 Foto" : (nuevoPayload.texto || "");
         salaActualizada.ultimo_mensaje_fecha = new Date().toISOString();
         salaActualizada.ultimo_mensaje_usuario_id = Number(nuevoPayload.usuario_id);
+        salaActualizada.ultimo_mensaje_id = Number(nuevoPayload.id); 
         salaActualizada.ultimo_mensaje_estado = nuevoPayload.estado;
 
         const nuevasSalas = [...prevSalas];
@@ -216,11 +218,23 @@ useEffect(() => {
   };
 
   const handleActualizarEstados = (payload: { messageIds: number[]; nuevoEstado: string }) => {
-    setMensajes(prevMensajes =>
-      prevMensajes.map(msg =>
-        payload.messageIds.includes(msg.id) ? { ...msg, estado: payload.nuevoEstado } : msg
-      )
-    );
+      setMensajes(prevMensajes => 
+        prevMensajes.map(msg => 
+          payload.messageIds.includes(msg.id) 
+            ? { ...msg, estado: payload.nuevoEstado } 
+            : msg
+        )
+      );
+
+      setMisSalas(prevSalas => 
+        prevSalas.map(sala => {
+          // Si el último mensaje de esta sala es uno de los que se acaban de leer...
+          if (sala.ultimo_mensaje_id && payload.messageIds.includes(sala.ultimo_mensaje_id)) {
+             return { ...sala, ultimo_mensaje_estado: payload.nuevoEstado };
+          }
+          return sala;
+        })
+      );
   };
 
   // Registro
